@@ -1,0 +1,206 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Program
+{
+    static void Main()
+    {
+        List<string> nomes = new List<string>();
+        List<string> grupos = new List<string>();
+        List<double> cargas = new List<double>();
+        List<int> repeticoes = new List<int>();
+
+        int opcao;
+
+        do
+        {
+            opcao = Menu();
+
+            switch (opcao)
+            {
+                case 1: Adicionar(nomes, grupos, cargas, repeticoes); break;
+                case 2: Listar(nomes, grupos, cargas, repeticoes); break;
+                case 3: Buscar(nomes, grupos, cargas, repeticoes); break;
+                case 4: Filtrar(nomes, grupos); break;
+                case 5: CalcularCarga(cargas); break;
+                case 6: MaisPesado(nomes, cargas); break;
+                case 7: Remover(nomes, grupos, cargas, repeticoes); break;
+                case 0: Console.WriteLine("Saindo..."); break;
+                default: Console.WriteLine("Opção inválida!"); break;
+            }
+
+        } while (opcao != 0);
+    }
+
+    static int Menu()
+    {
+        Console.WriteLine("\n===== MENU =====");
+        Console.WriteLine("1 - Adicionar exercício");
+        Console.WriteLine("2 - Listar exercícios");
+        Console.WriteLine("3 - Buscar exercício");
+        Console.WriteLine("4 - Filtrar por grupo");
+        Console.WriteLine("5 - Carga total");
+        Console.WriteLine("6 - Mais pesado");
+        Console.WriteLine("7 - Remover");
+        Console.WriteLine("0 - Sair");
+        Console.Write("Escolha: ");
+
+        int.TryParse(Console.ReadLine(), out int opcao);
+        return opcao;
+    }
+
+    static void Adicionar(List<string> nomes, List<string> grupos, List<double> cargas, List<int> repeticoes)
+    {
+        Console.Write("Nome: ");
+        string nome = Console.ReadLine();
+
+        if (string.IsNullOrWhiteSpace(nome))
+        {
+            Console.WriteLine("Nome inválido!");
+            return;
+        }
+
+        Console.Write("Grupo: ");
+        string grupo = Console.ReadLine();
+
+        Console.Write("Carga: ");
+        if (!double.TryParse(Console.ReadLine(), out double carga) || carga < 0)
+        {
+            Console.WriteLine("Carga inválida!");
+            return;
+        }
+
+        Console.Write("Repetições: ");
+        if (!int.TryParse(Console.ReadLine(), out int reps) || reps < 1)
+        {
+            Console.WriteLine("Repetições inválidas!");
+            return;
+        }
+
+        nomes.Add(nome);
+        grupos.Add(grupo);
+        cargas.Add(carga);
+        repeticoes.Add(reps);
+
+        Console.WriteLine("Adicionado!");
+    }
+
+    static void Listar(List<string> nomes, List<string> grupos, List<double> cargas, List<int> repeticoes)
+    {
+        if (!nomes.Any())
+        {
+            Console.WriteLine("Lista vazia!");
+            return;
+        }
+
+        for (int i = 0; i < nomes.Count; i++)
+        {
+            Exibir(i, nomes, grupos, cargas, repeticoes);
+        }
+    }
+
+    static void Exibir(int i, List<string> nomes, List<string> grupos, List<double> cargas, List<int> repeticoes)
+    {
+        Console.WriteLine($"{nomes[i]} - {grupos[i]} - {cargas[i]}kg - {repeticoes[i]} reps");
+    }
+
+    static void Buscar(List<string> nomes, List<string> grupos, List<double> cargas, List<int> repeticoes)
+    {
+        if (!nomes.Any())
+        {
+            Console.WriteLine("Lista vazia!");
+            return;
+        }
+
+        Console.Write("Nome: ");
+        string busca = Console.ReadLine();
+
+        int index = nomes.FindIndex(n => n.Equals(busca, StringComparison.OrdinalIgnoreCase));
+
+        if (index >= 0)
+            Exibir(index, nomes, grupos, cargas, repeticoes);
+        else
+            Console.WriteLine("Não encontrado!");
+    }
+
+    static void Filtrar(List<string> nomes, List<string> grupos)
+    {
+        if (!nomes.Any())
+        {
+            Console.WriteLine("Lista vazia!");
+            return;
+        }
+
+        Console.Write("Grupo: ");
+        string grupoBusca = Console.ReadLine();
+
+        var indices = grupos
+            .Select((g, i) => new { g, i })
+            .Where(x => x.g.Equals(grupoBusca, StringComparison.OrdinalIgnoreCase))
+            .Select(x => x.i);
+
+        if (indices.Any())
+        {
+            foreach (var i in indices)
+                Console.WriteLine(nomes[i]);
+        }
+        else
+        {
+            Console.WriteLine("Nenhum encontrado!");
+        }
+    }
+
+    static void CalcularCarga(List<double> cargas)
+    {
+        if (!cargas.Any())
+        {
+            Console.WriteLine("Lista vazia!");
+            return;
+        }
+
+        Console.WriteLine($"Carga total: {cargas.Sum()} kg");
+    }
+
+    static void MaisPesado(List<string> nomes, List<double> cargas)
+    {
+        if (!cargas.Any())
+        {
+            Console.WriteLine("Lista vazia!");
+            return;
+        }
+
+        double max = cargas.Max();
+        int index = cargas.IndexOf(max);
+
+        Console.WriteLine($"Mais pesado: {nomes[index]} - {max} kg");
+    }
+
+    static void Remover(List<string> nomes, List<string> grupos, List<double> cargas, List<int> repeticoes)
+    {
+        if (!nomes.Any())
+        {
+            Console.WriteLine("Lista vazia!");
+            return;
+        }
+
+        Console.Write("Nome: ");
+        string nome = Console.ReadLine();
+
+        int index = nomes.FindIndex(n => n.Equals(nome, StringComparison.OrdinalIgnoreCase));
+
+        if (index >= 0)
+        {
+            nomes.RemoveAt(index);
+            grupos.RemoveAt(index);
+            cargas.RemoveAt(index);
+            repeticoes.RemoveAt(index);
+
+            Console.WriteLine("Removido!");
+        }
+        else
+        {
+            Console.WriteLine("Não encontrado!");
+        }
+    }
+}
